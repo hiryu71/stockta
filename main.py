@@ -2,7 +2,7 @@
 import pandas as pd
 
 from stockta.stockta import StockTreeAnalysis
-from stockta.stockta import StockBase
+from stockta.stockbs import StockBase
 
 # ファイル読み込み
 def read_k_db_data(fileName):
