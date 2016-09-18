@@ -8,21 +8,6 @@ from sklearn import tree
 from sklearn.metrics import accuracy_score
 from sklearn import cross_validation
 
-# ファイル読み込み
-def ReadKDBData(fileName):
-
-    # ファイル読み込み
-    sfb = pd.read_csv(fileName, encoding="shift_jis", index_col=0)
-
-    # 日本語のインデックスを英語化
-    sfb.columns = ["Open", "High", "Low", "Close", "Volume", "Trading Value"]
-    sfb.index.names = ["Day"]
-
-    # indexを昇順にソート
-    sfb = sfb.sortlevel()
-
-    return sfb
-
 # 株式データ加工クラス
 class StockBase(object):
     def __init__(self, data):
@@ -50,39 +35,39 @@ class StockBase(object):
         #self.plot()
 
         # ラベリング(負：0, 正：1)
-        self.labeling()
+        self._labeling()
 
         # 不要な行を削除
         self._data = self._data.ix[74:, :]
 
         # 加工データの分割
-        train_data = self._data.ix[:, 0:16]
-        train_label = self._data.ix[:, "label"]
+        _train_data = self._data.ix[:, 0:16]
+        _train_label = self._data.ix[:, "label"]
 
-        return train_data, train_label
+        return _train_data, _train_label
 
-    def labeling(self):
+    def _labeling(self):
         # ラベリング(負：0, 正：1)
-        data = self._data["Close"].values
-        label = np.zeros(len(data))
-        for i in range(len(label)):
+        _data = self._data["Close"].values
+        _label = np.zeros(len(_data))
+        for i in range(len(_label)):
             if i == 0:
-                label[0] = 0
+                _label[0] = 0
             else:
-                if data[i] > data[i-1]:
-                    label[i] = 1
+                if _data[i] > _data[i-1]:
+                    _label[i] = 1
                 else:
-                    label[i] = 0
+                    _label[i] = 0
 
-        self._data["label"] = label
+        self._data["label"] = _label
 
 
     def plot(self):
-        fig, axes = plt.subplots(nrows=2, ncols=2)
-        self._data[["Close", "SMA 5", "SMA 25", "SMA 75"]].plot(ax=axes[0,0]); axes[0,0].set_title("SMA")
-        self._data[["Close", "Upper", "Middle", "Lower"]].plot(ax=axes[0,1]); axes[0,1].set_title("B Band")
-        self._data[["MACD", "MACD Signal"]].plot(ax=axes[1,0]); axes[1,0].set_title("MACD")
-        self._data["RSI"].plot(ax=axes[1,1]); axes[1,1].set_title("RSI")
+        _fig, _axes = plt.subplots(nrows=2, ncols=2)
+        self._data[["Close", "SMA 5", "SMA 25", "SMA 75"]].plot(ax=_axes[0,0]); _axes[0,0].set_title("SMA")
+        self._data[["Close", "Upper", "Middle", "Lower"]].plot(ax=_axes[0,1]); _axes[0,1].set_title("B Band")
+        self._data[["MACD", "MACD Signal"]].plot(ax=_axes[1,0]); _axes[1,0].set_title("MACD")
+        self._data["RSI"].plot(ax=_axes[1,1]); _axes[1,1].set_title("RSI")
 
         plt.tight_layout()
         plt.show()
@@ -96,11 +81,13 @@ class StockTreeAnalysis(object):
 
     def cross_validation(self):
         # 決定木分析
-        clf = tree.DecisionTreeClassifier()
-        scores = cross_validation.cross_val_score(clf, self._data, self._label, cv=4)
+        _clf = tree.DecisionTreeClassifier()
+        _scores = cross_validation.cross_val_score(_clf, self._data, self._label, cv=4)
 
         # 結果出力
-        print "正解率(平均)：{}".format(scores.mean())
-        print "正解率(最小 / 最大)：{} / {}".format(scores.min(), scores.max())
-        print "正解率(標準偏差)：{}".format(scores.std())
-        print "正解率(全て)：{}".format(scores)
+        print "正解率(平均)：{}".format(_scores.mean())
+        print "正解率(最小 / 最大)：{} / {}".format(_scores.min(), _scores.max())
+        print "正解率(標準偏差)：{}".format(_scores.std())
+        print "正解率(全て)：{}".format(_scores)
+
+        return _scores.mean()

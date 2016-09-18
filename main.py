@@ -1,32 +1,33 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
-from stockta.stockta import StockTreeAnalysis, StockBase
+from stockta.stockta import StockTreeAnalysis
+from stockta.stockta import StockBase
 
 # ファイル読み込み
-def ReadKDBData(fileName):
+def read_k_db_data(fileName):
 
     # ファイル読み込み
     try:
-        sfb = pd.read_csv(fileName, encoding="shift_jis", index_col=0)
+        _sfb = pd.read_csv(fileName, encoding="shift_jis", index_col=0)
     except:
         print"Error: ファイル読み込み失敗({})".format(fileName)
 
     # 日本語のインデックスを英語化
-    sfb.columns = ["Open", "High", "Low", "Close", "Volume", "Trading Value"]
-    sfb.index.names = ["Day"]
+    _sfb.columns = ["Open", "High", "Low", "Close", "Volume", "Trading Value"]
+    _sfb.index.names = ["Day"]
 
     # indexを昇順にソート
-    sfb = sfb.sortlevel()
+    _sfb = _sfb.sortlevel()
 
-    return sfb
+    return _sfb
 
 # main
 if __name__ == "__main__":
 
     # k-dbのデータを読み込む
     fileName = "../data/stocks_7203-T.csv"
-    sfb = ReadKDBData(fileName)
+    sfb = read_k_db_data(fileName)
 
     # 株価データ加工
     stockbase = StockBase(sfb)
