@@ -6,16 +6,13 @@ import talib as ta
 import matplotlib.pyplot as plt
 from sklearn import tree
 from sklearn.metrics import accuracy_score
-from sklearn.ensemble import RandomForestClassifier
 from sklearn import cross_validation
 
-# main
-if __name__ == "__main__":
-    # コマンド出力
-    print "start...."
+# ファイル読み込み
+def ReadKDBData(fileName):
 
     # ファイル読み込み
-    sfb = pd.read_csv("../data/stocks_7203-T.csv", encoding="shift_jis", index_col=0)
+    sfb = pd.read_csv(fileName, encoding="shift_jis", index_col=0)
 
     # 日本語のインデックスを英語化
     sfb.columns = ["Open", "High", "Low", "Close", "Volume", "Trading Value"]
@@ -23,6 +20,32 @@ if __name__ == "__main__":
 
     # indexを昇順にソート
     sfb = sfb.sortlevel()
+
+    return sfb
+
+# 株式分析クラス
+class StockTreeAnalysis(object):
+    def __init__(self, data, label):
+        self._data = data
+        self._label = label
+
+    def cross_validation(self):
+        # 決定木分析
+        clf = tree.DecisionTreeClassifier()
+        scores = cross_validation.cross_val_score(clf, self._data, self._label, cv=5)
+
+        # 結果出力
+        print "正解率(平均)：{}".format(scores.mean())
+        print "正解率(最小 / 最大)：{} / {}".format(scores.min(), scores.max())
+        print "正解率(標準偏差)：{}".format(scores.std())
+        print "正解率(全て)：{}".format(scores)
+
+# main
+if __name__ == "__main__":
+
+    # k-dbのデータを読み込む
+    fileName = "../data/stocks_7203-T.csv"
+    sfb = ReadKDBData(fileName)
 
     # 単純移動平均
     sfb["SMA 5"] = ta.SMA(np.array(sfb["Close"]), timeperiod=5)
@@ -66,23 +89,13 @@ if __name__ == "__main__":
 
     sfb["label"] = label
 
+    # 不要な行を削除
+    sfb = sfb.ix[74:, :]
+
     # 加工データの分割
-    train_data = sfb.ix[74:, 0:16]
-    train_label = sfb.ix[74:, "label"]
+    train_data = sfb.ix[:, 0:16]
+    train_label = sfb.ix[:, "label"]
 
-    # 決定木分析
-    clf = tree.DecisionTreeClassifier()
-    #clf = RandomForestClassifier()
-    scores = cross_validation.cross_val_score(clf, train_data, train_label, cv=4)
-
-    # 結果出力
-    print "正解率(平均)：{}".format(scores.mean())
-    print "正解率(最小 / 最大)：{} / {}".format(scores.min(), scores.max())
-    print "正解率(標準偏差)：{}".format(scores.std())
-    print "正解率(全て)：{}".format(scores)
-    #print "答え：   {}".format(test_label)
-    #print "学習結果：{}".format(test_out)
-
-    # コマンド出力
-    print "end"
-    print "test commit3"
+    # 株価分析
+    sta = StockTreeAnalysis(train_data, train_label)
+    sta.cross_validation()
