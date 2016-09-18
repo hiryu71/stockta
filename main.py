@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
+import sys
+sys.path.append('..')
+
 from stockta.stockta import StockTreeAnalysis
-from stockta.stockbs import StockBase
+from opt.neostockbs import NoeStockBase
 
 # ファイル読み込み
 def read_k_db_data(fileName):
@@ -30,7 +33,7 @@ if __name__ == "__main__":
     sfb = read_k_db_data(fileName)
 
     # 株価データ加工
-    stockbase = StockBase(sfb)
+    stockbase = NoeStockBase(sfb)
     train_data, train_label = stockbase.processing()
 
     # 株価分析
