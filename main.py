@@ -85,4 +85,4 @@ if __name__ == "__main__":
 
     # コマンド出力
     print "end"
-    print "test commit2"
+    print "test commit3"
