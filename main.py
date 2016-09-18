@@ -23,6 +23,67 @@ def ReadKDBData(fileName):
 
     return sfb
 
+# 株式データ加工クラス
+class StockBase(object):
+    def __init__(self, data):
+        self._data = data
+
+    def processing(self):
+        # 単純移動平均
+        self._data["SMA 5"] = ta.SMA(np.array(self._data["Close"]), timeperiod=5)
+        self._data["SMA 25"] = ta.SMA(np.array(self._data["Close"]), timeperiod=25)
+        self._data["SMA 75"] = ta.SMA(np.array(self._data["Close"]), timeperiod=75)
+
+        # ボリンジャーバンド(2σ)
+        self._data["Upper"], self._data["Middle"], self._data["Lower"] = ta.BBANDS(np.array(self._data["Close"]), timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
+
+        # MACD
+        self._data["MACD"], self._data["MACD Signal"], self._data["MACD Hist"] = ta.MACD(np.array(self._data["Close"]), fastperiod=12, slowperiod=26, signalperiod=9)
+
+        # RSI
+        self._data["RSI"] = ta.RSI(np.array(self._data["Close"]), timeperiod=14)
+
+        # 加工データの保存
+        self._data.to_csv("../result/ProcessingData.csv")
+
+        # グラフ
+        #self.plot()
+
+        # ラベリング(負：0, 正：1)
+        data = self._data["Close"].values
+        label = np.zeros(len(data))
+        for i in range(len(label)):
+            if i == 0:
+                label[0] = 0
+            else:
+                if data[i] > data[i-1]:
+                    label[i] = 1
+                else:
+                    label[i] = 0
+
+        self._data["label"] = label
+
+        # 不要な行を削除
+        self._data = self._data.ix[74:, :]
+
+        # 加工データの分割
+        train_data = self._data.ix[:, 0:16]
+        train_label = self._data.ix[:, "label"]
+
+        return train_data, train_label
+
+
+    def plot(self):
+        fig, axes = plt.subplots(nrows=2, ncols=2)
+        self._data[["Close", "SMA 5", "SMA 25", "SMA 75"]].plot(ax=axes[0,0]); axes[0,0].set_title("SMA")
+        self._data[["Close", "Upper", "Middle", "Lower"]].plot(ax=axes[0,1]); axes[0,1].set_title("B Band")
+        self._data[["MACD", "MACD Signal"]].plot(ax=axes[1,0]); axes[1,0].set_title("MACD")
+        self._data["RSI"].plot(ax=axes[1,1]); axes[1,1].set_title("RSI")
+
+        plt.tight_layout()
+        plt.show()
+
+
 # 株式分析クラス
 class StockTreeAnalysis(object):
     def __init__(self, data, label):
@@ -32,7 +93,7 @@ class StockTreeAnalysis(object):
     def cross_validation(self):
         # 決定木分析
         clf = tree.DecisionTreeClassifier()
-        scores = cross_validation.cross_val_score(clf, self._data, self._label, cv=5)
+        scores = cross_validation.cross_val_score(clf, self._data, self._label, cv=4)
 
         # 結果出力
         print "正解率(平均)：{}".format(scores.mean())
@@ -47,54 +108,9 @@ if __name__ == "__main__":
     fileName = "../data/stocks_7203-T.csv"
     sfb = ReadKDBData(fileName)
 
-    # 単純移動平均
-    sfb["SMA 5"] = ta.SMA(np.array(sfb["Close"]), timeperiod=5)
-    sfb["SMA 25"] = ta.SMA(np.array(sfb["Close"]), timeperiod=25)
-    sfb["SMA 75"] = ta.SMA(np.array(sfb["Close"]), timeperiod=75)
-
-    # ボリンジャーバンド(2σ)
-    sfb["Upper"], sfb["Middle"], sfb["Lower"] = ta.BBANDS(np.array(sfb["Close"]), timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
-
-    # MACD
-    sfb["MACD"], sfb["MACD Signal"], sfb["MACD Hist"] = ta.MACD(np.array(sfb["Close"]), fastperiod=12, slowperiod=26, signalperiod=9)
-
-    # RSI
-    sfb["RSI"] = ta.RSI(np.array(sfb["Close"]), timeperiod=14)
-
-    # 加工データの保存
-    sfb.to_csv("../result/ProcessingData.csv")
-
-    # グラフ化
-    '''
-    fig, axes = plt.subplots(nrows=2, ncols=2)
-    sfb[["Close", "SMA 5", "SMA 25", "SMA 75"]].plot(ax=axes[0,0]); axes[0,0].set_title("SMA")
-    sfb[["Close", "Upper", "Middle", "Lower"]].plot(ax=axes[0,1]); axes[0,1].set_title("B Band")
-    sfb[["MACD", "MACD Signal"]].plot(ax=axes[1,0]); axes[1,0].set_title("MACD")
-    sfb["RSI"].plot(ax=axes[1,1]); axes[1,1].set_title("RSI")
-
-    plt.tight_layout()
-    plt.show()
-    '''
-    # ラベリング(負：0, 正：1)
-    data = sfb["Close"].values
-    label = np.zeros(len(data))
-    for i in range(len(label)):
-        if i == 0:
-            label[0] = 0
-        else:
-            if data[i] > data[i-1]:
-                label[i] = 1
-            else:
-                label[i] = 0
-
-    sfb["label"] = label
-
-    # 不要な行を削除
-    sfb = sfb.ix[74:, :]
-
-    # 加工データの分割
-    train_data = sfb.ix[:, 0:16]
-    train_label = sfb.ix[:, "label"]
+    # 株価データ加工
+    stockbase = StockBase(sfb)
+    train_data, train_label = stockbase.processing()
 
     # 株価分析
     sta = StockTreeAnalysis(train_data, train_label)
