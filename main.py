@@ -50,6 +50,19 @@ class StockBase(object):
         #self.plot()
 
         # ラベリング(負：0, 正：1)
+        self.labeling()
+
+        # 不要な行を削除
+        self._data = self._data.ix[74:, :]
+
+        # 加工データの分割
+        train_data = self._data.ix[:, 0:16]
+        train_label = self._data.ix[:, "label"]
+
+        return train_data, train_label
+
+    def labeling(self):
+        # ラベリング(負：0, 正：1)
         data = self._data["Close"].values
         label = np.zeros(len(data))
         for i in range(len(label)):
@@ -62,15 +75,6 @@ class StockBase(object):
                     label[i] = 0
 
         self._data["label"] = label
-
-        # 不要な行を削除
-        self._data = self._data.ix[74:, :]
-
-        # 加工データの分割
-        train_data = self._data.ix[:, 0:16]
-        train_label = self._data.ix[:, "label"]
-
-        return train_data, train_label
 
 
     def plot(self):
