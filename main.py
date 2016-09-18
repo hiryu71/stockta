@@ -7,7 +7,10 @@ from stockta.stockta import StockTreeAnalysis, StockBase
 def ReadKDBData(fileName):
 
     # ファイル読み込み
-    sfb = pd.read_csv(fileName, encoding="shift_jis", index_col=0)
+    try:
+        sfb = pd.read_csv(fileName, encoding="shift_jis", index_col=0)
+    except:
+        print"Error: ファイル読み込み失敗({})".format(fileName)
 
     # 日本語のインデックスを英語化
     sfb.columns = ["Open", "High", "Low", "Close", "Volume", "Trading Value"]
