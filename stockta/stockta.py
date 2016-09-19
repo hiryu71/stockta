@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
 from sklearn import tree
 from sklearn import grid_search
 from sklearn import cross_validation
@@ -44,8 +46,12 @@ class StockTreeAnalysis(object):
         self._clf.fit(data, label)
 
     def output_graph(self):
-        # 学習結果を可視化
-        _dot_data = StringIO()
-        tree.export_graphviz(self._clf, out_file=_dot_data)
-        _graph = pydot.graph_from_dot_data(_dot_data.getvalue())
-        _graph.write_pdf('../result/tree.pdf')
+        try:
+            # 学習結果を可視化
+            _dot_data = StringIO()
+            tree.export_graphviz(self._clf, out_file=_dot_data)
+            _graph = pydot.graph_from_dot_data(_dot_data.getvalue())
+            _graph.write_pdf('../result/tree.pdf')
+        except:
+            _time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+            print "({}) WARN : グラフ出力失敗".format(_time)
