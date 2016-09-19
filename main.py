@@ -42,10 +42,10 @@ if __name__ == "__main__":
     train_data, train_label = stockbase.processing()
 
     # 株価分析
-    sta = StockTreeAnalysis(5, 10)
-    #sta.grid_search(train_data, train_label)
-    #sta.cross_validation(train_data, train_label)
-    sta.fit(train_data, train_label)
+    sta = StockTreeAnalysis()
+    sta.grid_search(train_data, train_label)
+    sta.cross_validation(train_data, train_label)
+    #sta.fit(train_data, train_label)
 
     # グラフ出力
     sta.output_graph()

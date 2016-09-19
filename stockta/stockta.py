@@ -14,25 +14,31 @@ class StockTreeAnalysis(object):
         self._clf = None
         self._data = {}
         self._label = {}
-        self._min_samples_leaf = min_samples_leaf
         self._max_depth = max_depth
+        self._min_samples_leaf = min_samples_leaf
 
     def grid_search(self, data, label):
         self._data = data
         self._label = label
 
-        # ハイパーパラメータ
-        _param = {
+        # パラメータ割り振り
+        _params = {
             "min_samples_leaf"  :[1, 5],
             "max_depth"         :[3, 10]
         }
 
         # 決定木分析
-        self._clf = grid_search.GridSearchCV(tree.DecisionTreeClassifier(), _param)
+        self._clf = grid_search.GridSearchCV(tree.DecisionTreeClassifier(), _params)
         self._clf.fit(self._data, self._label)
 
+        # パラメータ設定
+        self._max_depth, self._min_samples_leaf = self._clf.best_params_.values()
+
         # 結果出力
-        print "最適解：{}".format(self._clf.best_estimator_)
+        print "---------------------------"
+        print "最適解(成績)：{}".format(self._clf.best_score_)
+        print "最適解(パラメータ)：{}".format(self._clf.best_params_)
+
 
     def cross_validation(self, data, label):
         self._data = data
@@ -43,6 +49,7 @@ class StockTreeAnalysis(object):
         _scores = cross_validation.cross_val_score(self._clf, self._data, self._label, cv=4)
 
         # 結果出力
+        print "---------------------------"
         print "正解率(平均)：{}".format(_scores.mean())
         print "正解率(最小 / 最大)：{} / {}".format(_scores.min(), _scores.max())
         print "正解率(標準偏差)：{}".format(_scores.std())
