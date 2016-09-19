@@ -37,5 +37,6 @@ if __name__ == "__main__":
     train_data, train_label = stockbase.processing()
 
     # 株価分析
-    sta = StockTreeAnalysis(train_data, train_label)
-    sta.cross_validation()
+    sta = StockTreeAnalysis(5, 10)
+    #sta.grid_search(train_data, train_label)
+    sta.cross_validation(train_data, train_label)
