@@ -10,13 +10,16 @@ from opt.neostockbs import NoeStockBase
 
 # ファイル読み込み
 def read_k_db_data(fileName):
+    # log
+    _time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    print "({}) INFO : start...".format(_time)
 
     # ファイル読み込み
     try:
         _sfb = pd.read_csv(fileName, encoding="shift_jis", index_col=0)
     except:
         _time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-        print"({}) FATAL: ファイル読み込み失敗({})".format(_time, fileName)
+        print "({}) FATAL: ファイル読み込み失敗({})".format(_time, fileName)
 
     # 日本語のインデックスを英語化
     _sfb.columns = ["Open", "High", "Low", "Close", "Volume", "Trading Value"]
@@ -40,9 +43,13 @@ if __name__ == "__main__":
 
     # 株価分析
     sta = StockTreeAnalysis(5, 10)
-    sta.grid_search(train_data, train_label)
+    #sta.grid_search(train_data, train_label)
     #sta.cross_validation(train_data, train_label)
-    #sta.fit(train_data, train_label)
+    sta.fit(train_data, train_label)
 
     # グラフ出力
     sta.output_graph()
+
+    # log
+    _time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    print "({}) INFO : ...end".format(_time)
