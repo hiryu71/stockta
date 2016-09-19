@@ -75,5 +75,3 @@ class StockTreeAnalysis(object):
         except:
             _time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             print "({}) WARN : グラフ出力失敗".format(_time)
-
-#, feature_names=iris.feature_names, class_names=iris.target_names

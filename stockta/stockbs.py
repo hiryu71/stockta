@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 
 # 株式データ加工クラス
 class StockBase(object):
+    LABEL_DOWN = 0
+    LABEL_UP = 1
+
     def __init__(self, data):
         self._data = data
 
@@ -42,17 +45,17 @@ class StockBase(object):
         return _train_data, _train_label
 
     def _labeling(self):
-        # ラベリング(負：0, 正：1)
+        # ラベリング(Down：0, Up：1)
         _data = self._data["Close"].values
         _label = np.zeros(len(_data))
         for i in range(len(_label)):
-            if i == 0:
-                _label[0] = 0
+            if i == len(_label)-1:
+                _label[i] = StockBase.LABEL_DOWN
             else:
-                if _data[i] > _data[i-1]:
-                    _label[i] = 1
+                if _data[i+1] > _data[i]:
+                    _label[i] = StockBase.LABEL_UP
                 else:
-                    _label[i] = 0
+                    _label[i] = StockBase.LABEL_DOWN
 
         self._data["label"] = _label
 
