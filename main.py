@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-import sys
-sys.path.append('..')
 
 import pandas as pd
 
 from stockta.stockta import StockTreeAnalysis
-from opt.neostockbs import NoeStockBase
+from stockta.neostockbs import NoeStockBase
 
 # ファイル読み込み
 def read_k_db_data(fileName):
@@ -34,7 +32,7 @@ def read_k_db_data(fileName):
 if __name__ == "__main__":
 
     # k-dbのデータを読み込む
-    fileName = "../data/stocks_7203-T.csv"
+    fileName = "../data/stocks_7203-T_2.csv"
     sfb = read_k_db_data(fileName)
 
     # 株価データ加工
