@@ -54,8 +54,10 @@ class NoeStockBase(StockBase):
         self._labeling()
 
         # 不要な行を削除
-        #self._pick_items()
-        #self._drop_items()
+        #_pick_columns = ["Close", "EMA 5", "EMA 25", "EMA 75", "RSI 7", "RSI 14", "RSI 28", "label"]
+        #self._pick_columns(_pick_columns)
+        _drop_columns = ["High", "Volume"]
+        self._drop_columns(_drop_columns)
 
         # 加工データの保存
         self._data.to_csv("../result/ProcessingData1.csv")
@@ -87,23 +89,19 @@ class NoeStockBase(StockBase):
 
         self._data2["label"] = _label
 
-    def _pick_items(self):
-        _columns = ["Close", "EMA 5", "EMA 25", "EMA 75", "RSI 7", "RSI 14", "RSI 28", "label"]
-        self._data2 = self._data2.ix[:, _columns]
+    def _pick_columns(self, columns):
+        self._data2 = self._data2.ix[:, columns]
         print "---------------------------"
-        print "分析項目：{}".format(_columns)
+        print "分析項目：{}".format(self._data2.columns.values)
         #print "{}".format(self._data2.head(4))
-        #print "{}".format(self._data.tail(10))
 
-        '''
-    def _drop_items(self):
-        _columns = ["High", "Volume"]
-        self._data2 = self._data2.drop[_columns, axis=1]
+
+    def _drop_columns(self, columns):
+        self._data2 = self._data2.drop(columns, axis=1)
         print "---------------------------"
-        print "分析対象外項目：{}".format(_columns)
-        print "{}".format(self._data2.head(4))
-        #print "{}".format(self._data.tail(10))
-        '''
+        print "分析項目：{}".format(self._data2.columns.values)
+        print "分析対象外項目：{}".format(columns)
+        #print "{}".format(self._data2.head(4))
 
     def plot2(self):
         _fig, _axes = plt.subplots(nrows=2, ncols=2)
