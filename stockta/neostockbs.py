@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from stockbs import StockBase
 from hslib import hslib
 
-# 株式データ加工クラス(非公開)
+# 株式データ加工クラス
 class NoeStockBase(StockBase):
     def __init__(self, data):
         self._data = data
